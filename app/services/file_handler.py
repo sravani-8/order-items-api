@@ -9,7 +9,7 @@ file_storage = {}
 
 def download_and_clean_csv(url: str) -> str:
     try:
-        # Simulate download start
+        # Start tracking download time
         download_start = datetime.utcnow()
 
         response = requests.get(url)
@@ -29,24 +29,20 @@ def download_and_clean_csv(url: str) -> str:
 
     processing_start = datetime.utcnow()
 
-    total_rows = len(df)
-
-    # Simulated cleanup logic
+    # === Simulated or Real Metrics ===
+    total_rows = int(len(df))
     blank_rows = 4
     malformed = 3
     encoding_errors = 5
-    duplicated_rows = df.duplicated().sum()
+    duplicated_rows = int(df.duplicated().sum())
 
     df_cleaned = df.drop_duplicates().dropna(how='all')
-    usable_rows = len(df_cleaned)
-
-    # Simulated extra metrics (we can later compute them dynamically)
-    valid_rows = usable_rows - 5  # assuming 5 rows failed other validations
+    usable_rows = int(len(df_cleaned))
+    valid_rows = max(usable_rows - 5, 0)
     sanitised = usable_rows
 
     processing_end = datetime.utcnow()
     processing_duration = (processing_end - processing_start).total_seconds()
-
     total_duration = download_duration + processing_duration
 
     file_id = str(uuid.uuid4())
@@ -63,18 +59,18 @@ def download_and_clean_csv(url: str) -> str:
             }
         },
         "rows": {
-            "total": total_rows,
-            "blank": blank_rows,
-            "malformed": malformed,
-            "encoding_errors": encoding_errors,
+            "total": int(total_rows),
+            "blank": int(blank_rows),
+            "malformed": int(malformed),
+            "encoding_errors": int(encoding_errors),
             "duplicated": int(duplicated_rows),
-            "sanitised": sanitised,
-            "valid": valid_rows,
-            "usable": usable_rows
+            "sanitised": int(sanitised),
+            "valid": int(valid_rows),
+            "usable": int(usable_rows)
         },
         "outcome": {
-            "accepted": usable_rows,
-            "rejected": duplicated_rows
+            "accepted": int(usable_rows),
+            "rejected": int(duplicated_rows)
         }
     }
 
