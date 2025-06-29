@@ -3,7 +3,7 @@ from collections import Counter
 
 def generate_metrics(df: pd.DataFrame, groupby: str) -> dict:
     # Convert date column to datetime
-    df["order_date"] = pd.to_datetime(df["order_date"])
+    df["order_date"] = pd.to_datetime(df["purchased_date"])
 
     # Determine grouping key
     if groupby == "month":
