@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 # from fastapi.responses import RedirectResponse
 # import uuid
 from app.services.file_handler import download_and_clean_csv, file_storage
+from app.services.processing_stats import compute_processing_stats
 from app.services.metrics_calculator import generate_metrics
 
 app = FastAPI()
@@ -21,10 +22,12 @@ async def get_form(request: Request):
 @app.post("/upload")
 async def upload_csv_url(csv_url: str = Form(...)):
     try:
-        file_id = download_and_clean_csv(csv_url)
-        return {"message": "file processes successfully","file_id": file_id}
+        file_id, df_cleaned, summary = download_and_clean_csv(csv_url)
+        # file_storage is already populated by download_and_clean_csv()
+        return {"message": "File processed successfully", "file_id": file_id}
     except ValueError as e:
-        return{"Error": str(e)}
+        raise HTTPException(status_code=400, detail=str(e))
+
     # # Generate a UUID to simulate file ID
     # file_id = str(uuid.uuid4())
 
@@ -34,14 +37,21 @@ async def upload_csv_url(csv_url: str = Form(...)):
 
 @app.get("/api/v1/order-items/uploads/{file_id}/processing-stats")
 async def get_processing_stats(file_id: str):
+    # Validate ID format
     if len(file_id) < 10:
         raise HTTPException(status_code=400, detail="Invalid file ID format.")
 
-    file_entry = file_storage.get(file_id)
-    if file_entry is None:
+    entry = file_storage.get(file_id)
+    if entry is None:
         raise HTTPException(status_code=404, detail="File ID does not exist.")
 
-    return file_entry  # Return full detailed response
+    df = entry["data"]
+    summary = entry["summary"]
+
+    # Delegate to the new service
+    stats = compute_processing_stats(summary, df)
+    return stats
+
 
 
 @app.get("/api/v1/order-items/uploads/{file_id}/metrics")
