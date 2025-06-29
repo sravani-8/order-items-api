@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, Request, Query
 from fastapi.responses import HTMLResponse
 from fastapi import HTTPException
 from fastapi.templating import Jinja2Templates
@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 # from fastapi.responses import RedirectResponse
 # import uuid
 from app.services.file_handler import download_and_clean_csv, file_storage
+from app.services.metrics_calculator import generate_metrics
 
 app = FastAPI()
 
@@ -42,3 +43,30 @@ async def get_processing_stats(file_id: str):
 
     return file_entry  # Return full detailed response
 
+
+@app.get("/api/v1/order-items/uploads/{file_id}/metrics")
+async def get_metrics(file_id: str, groupby: str = Query(...)):
+    if len(file_id) < 10:
+        return {"error": "Invalid file ID format."}
+
+    file_entry = file_storage.get(file_id)
+    if file_entry is None:
+        return {"error": "File ID does not exist."}
+
+    df = file_entry.get("data")
+    if df is None:
+        return {"error": "File is still being processed."}
+
+    if groupby not in ["month", "year"]:
+        return {"error": "Invalid groupby parameter. Use 'month' or 'year'."}
+
+    grand_totals, metrics_list = generate_metrics(df.copy(), groupby)
+
+    return {
+        "group_by": groupby,
+        "start_date": str(df["order_date"].min().date()),
+        "end_date": str(df["order_date"].max().date()),
+        "uploaded_at": file_entry.get("uploaded_at"),
+        "grand_totals": grand_totals,
+        "metrics": metrics_list
+    }
