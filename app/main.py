@@ -53,30 +53,31 @@ async def get_processing_stats(file_id: str):
     return stats
 
 
-
 @app.get("/api/v1/order-items/uploads/{file_id}/metrics")
 async def get_metrics(file_id: str, groupby: str = Query(...)):
+    # Validate ID format
     if len(file_id) < 10:
-        return {"error": "Invalid file ID format."}
+        raise HTTPException(400, "Invalid file ID format.")
 
-    file_entry = file_storage.get(file_id)
-    if file_entry is None:
-        return {"error": "File ID does not exist."}
+    entry = file_storage.get(file_id)
+    if entry is None:
+        raise HTTPException(404, "File ID does not exist.")
 
-    df = file_entry.get("data")
+    df = entry["data"]
     if df is None:
-        return {"error": "File is still being processed."}
+        raise HTTPException(409, "File is still being processed.")
 
-    if groupby not in ["month", "year"]:
-        return {"error": "Invalid groupby parameter. Use 'month' or 'year'."}
-
-    grand_totals, metrics_list = generate_metrics(df.copy(), groupby)
+    # Compute metrics (now returns start/end)
+    try:
+        grand_totals, metrics_list, start_date, end_date = generate_metrics(df.copy(), groupby)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
 
     return {
-        "group_by": groupby,
-        "start_date": str(df["order_date"].min().date()),
-        "end_date": str(df["order_date"].max().date()),
-        "uploaded_at": file_entry.get("uploaded_at"),
+        "group_by":    groupby,
+        "start_date":  start_date,
+        "end_date":    end_date,
+        "uploaded_at": entry["summary"]["uploaded_at"],
         "grand_totals": grand_totals,
-        "metrics": metrics_list
+        "metrics":      metrics_list
     }
