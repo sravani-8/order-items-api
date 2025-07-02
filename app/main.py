@@ -1,5 +1,9 @@
+from typing import Any
+import json
 from fastapi import FastAPI, Form, Request, Query
-from fastapi.responses import HTMLResponse
+from functools import partial
+from fastapi.responses import Response,HTMLResponse
+from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException
 from fastapi.templating import Jinja2Templates
 # from fastapi.staticfiles import StaticFiles
@@ -10,7 +14,19 @@ from app.services.file_handler import download_and_clean_csv, file_storage
 # from app.services.processing_stats import compute_processing_stats 
 from app.services.metrics_calculator import generate_metrics
 
-app = FastAPI()
+# 1. Define a PrettyJSONResponse that always indents with 4 spaces
+class PrettyJSONResponse(Response):
+    media_type = "application/json"
+
+    def render(self, content: Any) -> bytes:
+        # Convert Pydantic models, datetimes, etc. to JSON-serializable types
+        encoded = jsonable_encoder(content)
+        # Dump with indentation
+        pretty = json.dumps(encoded, indent=4, ensure_ascii=False)
+        return pretty.encode("utf-8")
+
+# 2. Create FastAPI app using our PrettyJSONResponse as the default
+app = FastAPI(default_response_class=PrettyJSONResponse)
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -41,7 +57,13 @@ async def get_processing_stats(file_id: str):
 
     # The full processing stats are now directly available in the stored summary
     # No need to call compute_processing_stats anymore
-    return entry["summary"]
+    stats = entry["summary"]
+    return {
+        "uploaded_at": stats["uploaded_at"],
+        "durations":   stats["durations"],
+        "rows":        stats["rows"],
+        "outcome":     stats["outcome"],
+    }
 
 
 @app.get("/api/v1/order-items/uploads/{file_id}/metrics")
