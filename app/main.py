@@ -6,7 +6,8 @@ from fastapi.templating import Jinja2Templates
 # from fastapi.responses import RedirectResponse
 # import uuid
 from app.services.file_handler import download_and_clean_csv, file_storage
-from app.services.processing_stats import compute_processing_stats
+# No longer need this import as processing_stats.py is removed
+# from app.services.processing_stats import compute_processing_stats 
 from app.services.metrics_calculator import generate_metrics
 
 app = FastAPI()
@@ -28,13 +29,6 @@ async def upload_csv_url(csv_url: str = Form(...)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # # Generate a UUID to simulate file ID
-    # file_id = str(uuid.uuid4())
-
-    # # For now, we will just return the file_id (we will add real logic later)
-    # return {"message": "CSV URL received", "file_id": file_id, "url": csv_url}
-
-
 @app.get("/api/v1/order-items/uploads/{file_id}/processing-stats")
 async def get_processing_stats(file_id: str):
     # Validate ID format
@@ -45,12 +39,9 @@ async def get_processing_stats(file_id: str):
     if entry is None:
         raise HTTPException(status_code=404, detail="File ID does not exist.")
 
-    df = entry["data"]
-    summary = entry["summary"]
-
-    # Delegate to the new service
-    stats = compute_processing_stats(summary, df)
-    return stats
+    # The full processing stats are now directly available in the stored summary
+    # No need to call compute_processing_stats anymore
+    return entry["summary"]
 
 
 @app.get("/api/v1/order-items/uploads/{file_id}/metrics")
@@ -74,9 +65,9 @@ async def get_metrics(file_id: str, groupby: str = Query(...)):
         raise HTTPException(400, str(e))
 
     return {
-        "group_by":    groupby,
-        "start_date":  start_date,
-        "end_date":    end_date,
+        "group_by":     groupby,
+        "start_date":   start_date,
+        "end_date":     end_date,
         "uploaded_at": entry["summary"]["uploaded_at"],
         "grand_totals": grand_totals,
         "metrics":      metrics_list
