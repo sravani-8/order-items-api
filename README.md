@@ -192,37 +192,37 @@ Once you have a `file_id` from the upload step, you can retrieve detailed proces
 **Example `curl` command:**
 
 ```bash
-curl -X GET "http://127.0.0.1:8000/api/v1/order-items/uploads/a1b2c3d4-e5f6-7890-1234-567890abcdef/processing-stats"
+curl -X GET "http://127.0.0.1:8000/api/v1/order-items/uploads/ca7457af-24ff-4aee-90a5-e913da494ac8/processing-stats"
 ```
 
 **Example JSON Response:**
 
 ```json
 {
-  "rows": {
-    "total": 8369150,
-    "blank": 624065,
-    "malformed": 115512,
-    "encoding_errors": 0,
-    "duplicated": 867428,
-    "sanitised": 3318926,
-    "valid": 3203414,
-    "usable": 2335986
-  },
-  "outcome": {
-    "accepted": 2335986,
-    "rejected": 1607005
-  },
-  "uploaded_at": "2025-07-02T00:44:09.573552Z",
-  "durations": {
-    "download_seconds": 33,
-    "processing_seconds": 0,
-    "total_seconds": 33,
-    "formatted": {
-      "download": "0 days 00:00:33.418994",
-      "processing": "0 days 00:00:00"
+    "uploaded_at": "2025-07-02T11:13:20.172913Z",
+    "durations": {
+        "download_seconds": 129,
+        "processing_seconds": 0,
+        "total_seconds": 129,
+        "formatted": {
+            "download": "0 days 00:02:09.158386",
+            "processing": "0 days 00:00:00"
+        }
+    },
+    "rows": {
+        "total": 8369150,
+        "blank": 624065,
+        "malformed": 115512,
+        "encoding_errors": 0,
+        "duplicated": 867428,
+        "sanitised": 3318926,
+        "valid": 3203414,
+        "usable": 2335986
+    },
+    "outcome": {
+        "accepted": 2335986,
+        "rejected": 6033164
     }
-  }
 }
 ```
 
@@ -238,63 +238,72 @@ You can also retrieve sales metrics grouped by `month` or `year`.
 **Example `curl` command (grouped by month):**
 
 ```bash
-curl -X GET "http://127.0.0.1:8000/api/v1/order-items/uploads/a1b2c3d4-e5f6-7890-1234-567890abcdef/metrics?groupby=month"
+curl -X GET "http://127.0.0.1:8000/api/v1/order-items/uploads/ca7457af-24ff-4aee-90a5-e913da494ac8/metrics?groupby=month"
 ```
 
 **Example JSON Response:**
 
 ```json
 {
-  "group_by": "month",
-  "start_date": "2025-02-01",
-  "end_date": "2025-05-31",
-  "uploaded_at": "2025-07-02T00:44:09.573552Z",
-  "grand_totals": {
-    "total_orders": 10,
-    "gross_sales": 1160.03,
-    "net_sales": 1317.06,
-    "grand_total": 1133.68,
-    "most_popular_product_sku": "uhc-41532924",
-    "least_popular_product_sku": "cnq-00363112"
-  },
-  "metrics": [
-    {
-      "period": "2025-02",
-      "total_orders": 3,
-      "gross_sales": 444.66,
-      "net_sales": 508.41,
-      "grand_total": 454.12,
-      "most_popular_product_sku": "uhc-41532924",
-      "least_popular_product_sku": "uxm-68468202"
+    "group_by": "month",
+    "start_date": "2025-01-01",
+    "end_date": "2025-05-31",
+    "uploaded_at": "2025-07-02T11:13:20.172913Z",
+    "grand_totals": {
+        "total_orders": 3074347,
+        "gross_sales": 341859035.58000004,
+        "net_sales": 384614250.4,
+        "grand_total": 334420943.48,
+        "most_popular_product_sku": "uxm-68468202",
+        "least_popular_product_sku": "JnV-31918656Ú¿¡"
     },
-    {
-      "period": "2025-03",
-      "total_orders": 5,
-      "gross_sales": 405.3,
-      "net_sales": 465.17,
-      "grand_total": 393.58,
-      "most_popular_product_sku": "bqu-96763865",
-      "least_popular_product_sku": "bqu-96763865"
-    },
-    {
-      "period": "2025-04",
-      "total_orders": 1,
-      "gross_sales": 115.75,
-      "net_sales": 134.75,
-      "grand_total": 101.14,
-      "most_popular_product_sku": "cnq-00363112",
-      "least_popular_product_sku": "cnq-00363112"
-    },
-    {
-      "period": "2025-05",
-      "total_orders": 1,
-      "gross_sales": 177.31,
-      "net_sales": 208.73,
-      "grand_total": 191.07,
-      "most_popular_product_sku": "uhc-41532924",
-      "least_popular_product_sku": "uhc-41532924"
-    }
-  ]
+    "metrics": [
+        {
+            "period": "2025-01",
+            "total_orders": 630656,
+            "gross_sales": 70146826.55,
+            "net_sales": 78919850.69,
+            "grand_total": 68618129.45,
+            "most_popular_product_sku": "nli-44565082",
+            "least_popular_product_sku": "ALv-61199172¬þ"
+        },
+        {
+            "period": "2025-02",
+            "total_orders": 568043,
+            "gross_sales": 63195782.17,
+            "net_sales": 71103521.39,
+            "grand_total": 61817565.9,
+            "most_popular_product_sku": "jUp-18407667",
+            "least_popular_product_sku": "amB-95367729áúí"
+        },
+        {
+            "period": "2025-03",
+            "total_orders": 633044,
+            "gross_sales": 70436231.69,
+            "net_sales": 79242206.72,
+            "grand_total": 68917049.36,
+            "most_popular_product_sku": "amB-95367729",
+            "least_popular_product_sku": "uxm-68468202ÁÖ"
+        },
+        {
+            "period": "2025-04",
+            "total_orders": 611383,
+            "gross_sales": 67925220.83,
+            "net_sales": 76424456.19,
+            "grand_total": 66457754.79,
+            "most_popular_product_sku": "uHc-41532924",
+            "least_popular_product_sku": "uxm-68468202åô"
+        },
+        {
+            "period": "2025-05",
+            "total_orders": 631221,
+            "gross_sales": 70154974.34,
+            "net_sales": 78924215.41,
+            "grand_total": 68610443.98,
+            "most_popular_product_sku": "fDQ-79436990",
+            "least_popular_product_sku": "raO-21663955éÍÜ"
+        }
+    ]
 }
 ```
 
@@ -313,7 +322,7 @@ The `rows` and `outcome` sections in the processing statistics provide a detaile
   * **`valid`**: The number of `sanitised` rows that passed all content validation rules (i.e., `sanitised` minus `malformed` content rows).
   * **`usable`**: The final number of rows that are considered clean and valid, after removing `duplicated` rows from the `valid` rows. These are the rows ready for further analytical processing.
   * **`accepted`**: The same count as `usable` rows. These are the rows that the system successfully processed and accepted.
-  * **`rejected`**: The total count of rows that were ultimately excluded from the `accepted` set due to being `blank`, `malformed` (content-based), or `duplicated`. This count **does not** include rows that failed structural parsing (those are implicitly excluded from `sanitised` onwards).
+  * **`rejected`**: The total count of rows that were ultimately excluded from the `total` set due to being `blank`, `malformed` (content-based), or `duplicated`.
 
 ## Error Handling
 
