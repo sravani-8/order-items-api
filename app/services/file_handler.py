@@ -167,7 +167,7 @@ def _perform_detailed_analysis(raw_text: str, delimiter: str = ',') -> tuple[dic
     usable_rows = max(0, valid_rows - duplicated_rows) 
 
     accepted_rows = usable_rows
-    rejected_rows = blank_rows + malformed_content_rows + duplicated_rows
+    rejected_rows = total_data_lines_in_file - usable_rows
 
     # Ensure all counts are standard Python integers for JSON serialization
     output_data = {
@@ -226,17 +226,14 @@ def download_and_clean_csv(url: str, chunksize: int = 100_000) -> tuple[str, pd.
             
     if not file_decoded_successfully:
         raise ValueError(f"Could not decode file with any of the attempted encodings. Total encoding errors encountered: {encoding_errors_during_decode}")
-
-    # Now, use our detailed analysis function which processes raw_text
+    
+      # Now, use our detailed analysis function which processes raw_text
     summary_data, df_cleaned = _perform_detailed_analysis(raw_text)
-
-    # Update summary with encoding errors from the download phase
-    summary_data["rows"]["encoding_errors"] = encoding_errors_during_decode
     
     # Add durations to the summary
     summary_data["uploaded_at"] = datetime.utcnow().isoformat() + "Z"
-    
-    # Note: `_perform_detailed_analysis` does not explicitly measure its own processing time.
+
+   # Note: `_perform_detailed_analysis` does not explicitly measure its own processing time.
     # For now, processing_seconds is set to 0. You might want to wrap _perform_detailed_analysis
     # with a timer if you need that metric.
     processing_secs = 0 
@@ -249,12 +246,17 @@ def download_and_clean_csv(url: str, chunksize: int = 100_000) -> tuple[str, pd.
             "processing": str(pd.to_timedelta(processing_secs, unit="s"))
         }
     }
+  
 
-    # 6) Store and return
+     # Update summary with encoding errors from the download phase
+    summary_data["rows"]["encoding_errors"] = encoding_errors_during_decode
+
+
+    # Store and return
     file_id = str(uuid.uuid4())
     file_storage[file_id] = {
         "data": df_cleaned,
         "summary": summary_data # Use the fully calculated summary_data
     }
 
-    return file_id, df_cleaned, summary_data
+    return file_id, df_cleaned, summary_data,
