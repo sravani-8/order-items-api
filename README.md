@@ -59,7 +59,7 @@ Follow these steps to set up and run the application locally.
 
 ### Prerequisites
 
-  * Python 3.8+
+  * Python 3.13+
   * `pip` (Python package installer)
 
 ### Virtual Environment Setup
